@@ -1,0 +1,19 @@
+{
+  "name": "@kids-drawing/engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/core/canvas.ts",
+    "./types": "./src/types.ts",
+    "./tools": "./src/tools/stroke_renderer.ts",
+    "./export": "./src/export/png.ts"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "check": "tsc --noEmit --pretty"
+  }
+}

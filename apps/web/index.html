@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🎨 Kids Drawing</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+  <div id="app">
+    <!-- Top toolbar -->
+    <header class="toolbar">
+      <div class="toolbar-group">
+        <button class="tool-btn active" data-tool="pencil" title="Pencil">✏️</button>
+        <button class="tool-btn" data-tool="marker" title="Marker">🖌️</button>
+        <button class="tool-btn" data-tool="crayon" title="Crayon">🖍️</button>
+        <button class="tool-btn" data-tool="rainbow" title="Rainbow">🌈</button>
+        <button class="tool-btn" data-tool="spray" title="Spray">💨</button>
+        <button class="tool-btn" data-tool="eraser" title="Eraser">🧼</button>
+        <button class="tool-btn" data-tool="sticker" title="Stickers">✨</button>
+        <button class="tool-btn" id="tools-more-btn" title="More">⋮</button>
+      </div>
+
+      <div class="toolbar-group brushes-size">
+        <button class="size-btn size-sm" data-size="4">S</button>
+        <button class="size-btn size-md active" data-size="12">M</button>
+        <button class="size-btn size-lg" data-size="24">L</button>
+      </div>
+
+      <div class="toolbar-group actions">
+        <button id="undo-btn" title="Undo" disabled>↩️</button>
+        <button id="redo-btn" title="Redo" disabled>↪️</button>
+        <button id="clear-btn" title="Clear All">🗑️</button>
+        <button id="save-btn" title="Save PNG">📥</button>
+      </div>
+    </header>
+
+    <!-- Mode bar: Free Draw / Guided / Playback -->
+    <nav class="mode-bar" id="mode-bar">
+      <button class="mode-btn active" data-mode="free">🎨 Free Draw</button>
+      <button class="mode-btn" data-mode="guided">🔍 Guided</button>
+      <button class="mode-btn" data-mode="playback">▶️ Watch Back</button>
+      <button class="mode-btn" id="sound-toggle" data-sound="on">🔊</button>
+    </nav>
+
+    <!-- Color palette -->
+    <nav class="palette" id="palette">
+      <div class="swatch-group">
+        <button class="swatch active" style="background:#ef4444" data-color="#ef4444"></button>
+        <button class="swatch" style="background:#f97316" data-color="#f97316"></button>
+        <button class="swatch" style="background:#eab308" data-color="#eab308"></button>
+        <button class="swatch" style="background:#22c55e" data-color="#22c55e"></button>
+        <button class="swatch" style="background:#3b82f6" data-color="#3b82f6"></button>
+        <button class="swatch" style="background:#8b5cf6" data-color="#8b5cf6"></button>
+        <button class="swatch" style="background:#6366f1" data-color="#6366f1"></button>
+        <button class="swatch" style="background:#14b8a6" data-color="#14b8a6"></button>
+        <button class="swatch" style="background:#f43f5e" data-color="#f43f5e"></button>
+        <button class="swatch" style="background:#84cc16" data-color="#84cc16"></button>
+        <button class="swatch" style="background:#ec4899" data-color="#ec4899"></button>
+        <button class="swatch color-picker-wrp">
+          <input type="color" id="color-input" value="#ef4444" title="Pick custom color">
+          🎨
+        </button>
+      </div>
+    </nav>
+
+    <!-- Lesson selector (visible in guided mode) -->
+    <div class="lesson-bar hidden" id="lesson-bar">
+      <span>Pick a shape to trace:</span>
+      <div class="lesson-buttons" id="lesson-buttons"></div>
+    </div>
+
+    <!-- Sticker tray (visible when sticker tool active) -->
+    <aside class="sticker-tray" id="sticker-tray">
+      <button class="sticker-btn active" data-sticker="star" title="Star">
+        <img src="assets/stickers/star.svg" width="32" height="32">⭐</button>
+      <button class="sticker-btn" data-sticker="heart" title="Heart">
+        <img src="assets/stickers/heart.svg" width="32" height="32">❤️</button>
+      <button class="sticker-btn" data-sticker="smiley" title="Smiley">
+        <img src="assets/stickers/smiley.svg" width="32" height="32">😊</button>
+      <button class="sticker-btn" data-sticker="rocket" title="Rocket">
+        <img src="assets/stickers/rocket.svg" width="32" height="32">🚀</button>
+      <button class="sticker-btn" data-sticker="flower" title="Flower">
+        <img src="assets/stickers/flower.svg" width="32" height="32">🌸</button>
+      <button class="sticker-btn" data-sticker="cat" title="Cat">
+        <img src="assets/stickers/cat.svg" width="32" height="32">🐱</button>
+    </aside>
+
+    <!-- Canvas wrapper -->
+    <main class="canvas-wrap">
+      <canvas id="draw-canvas"></canvas>
+      <!-- Playback overlay -->
+      <div class="playback-overlay hidden" id="playback-overlay">
+        <div class="pb-controls">
+          <button id="pb-play">▶️ Play</button>
+          <button id="pb-stop">⏹️ Stop</button>
+          <span id="pb-status"></span>
+        </div>
+      </div>
+      <!-- Background selector -->
+      <div class="bg-selector" id="bg-selector">
+        <button class="bg-option active" data-bg="#ffffff">White</button>
+        <button class="bg-option" data-bg="#ffecd2">Peach</button>
+        <button class="bg-option" data-bg="#e0f2fe">Sky</button>
+        <button class="bg-option" data-bg="#fce7f3">Pink</button>
+        <button class="bg-option" data-bg="dots">Dots</button>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
