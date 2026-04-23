@@ -15,6 +15,11 @@ if (splash) {
     setTimeout(() => {
       splash.style.display = "none";
       appContainer.style.display = "flex";
+      // CRITICAL: resize canvas now that app is visible
+      requestAnimationFrame(() => {
+        sizeCanvas();
+        setTimeout(sizeCanvas, 100);
+      });
     }, 800);
   });
 }
@@ -33,17 +38,20 @@ let animator: StrokeAnimator | null = null;
 
 function sizeCanvas() {
   const wrap = document.querySelector(".canvas-wrap") as HTMLElement;
-  const w = Math.min(1200, wrap.clientWidth - 16);
-  const h = Math.min(800, wrap.clientHeight - 16);
+  if (!wrap) return;
+  const w = Math.min(1200, Math.max(300, wrap.clientWidth - 16));
+  const h = Math.min(800, Math.max(300, wrap.clientHeight - 16));
   canvas.style.width = w + "px";
   canvas.style.height = h + "px";
+  canvas.style.left = "8px";
+  canvas.style.top = "8px";
   canvas.width = w * dpi;
   canvas.height = h * dpi;
   ctx.setTransform(dpi, 0, 0, dpi, 0, 0);
   if (!engine) {
     engine = new CanvasEngine(w, h, "#ffffff");
     engine.onChange((state) => updateUI(state));
-    engine.snapshot(); // initial blank state
+    engine.snapshot();
   } else {
     engine.width = w; engine.height = h;
   }
@@ -110,10 +118,38 @@ canvas.addEventListener("pointercancel", () => {
 
 // ── Render pipeline ──────────────────────────
 async function render(dirty: boolean = false) {
-  ctx.fillStyle = engine.background === "dots" ? "#ffffff" : engine.background;
-  ctx.fillRect(0, 0, engine.width, engine.height);
-
-  if (engine.background === "dots") drawDotGrid();
+  const bg = engine.background;
+  if (bg.startsWith("assets/") || bg.startsWith("http")) {
+    // Image background — load once and cache
+    const imgKey = "_bg_" + bg;
+    let img = (window as any).__bgCache?.[imgKey] as HTMLImageElement | undefined;
+    if (!img) {
+      img = new Image();
+      img.src = bg;
+      img.crossOrigin = "anonymous";
+      await new Promise<void>((resolve) => {
+        img!.onload = () => resolve();
+        img!.onerror = () => resolve(); // continue on error
+        img!.onabort = () => resolve();
+      });
+      (window as any).__bgCache = (window as any).__bgCache || {};
+      (window as any).__bgCache[imgKey] = img;
+    }
+    // Draw image covering the canvas
+    if (img.complete && img.naturalWidth > 0) {
+      ctx.drawImage(img, 0, 0, engine.width, engine.height);
+    } else {
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, engine.width, engine.height);
+    }
+  } else if (bg === "dots") {
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, engine.width, engine.height);
+    drawDotGrid();
+  } else {
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, engine.width, engine.height);
+  }
 
   // Draw active lesson guides
   if (isGuidedTracing()) {
@@ -383,6 +419,62 @@ function updateUI(state: object) {
   undoBtn.style.opacity = s.canUndo ? "1" : "0.3";
   redoBtn.style.opacity = s.canRedo ? "1" : "0.3";
 }
+
+// ── Gallery ──────────────────────────────
+const GALLERY_ASSETS: Record<string, {path:string; label:string}[]> = {
+  coloring: Array.from({length:12}, (_,i) => ({path:`assets/coloring-pages/coloring_${String(i+1).padStart(2,"0")}.png`, label:["Lion","Dolphin","Rocket","Cake","Bear","Butterfly","Pirate Ship","Fairy","T-Rex","Fire Truck","Unicorn","Penguin"][i]}))
+    .concat(Array.from({length:6}, (_,i) => ({path:`assets/coloring-pages/vehicle_${String(i+1).padStart(2,"0")}.png`, label:["Dump Truck","Train","Airplane","Submarine","Tractor","Helicopter"][i]}))),
+  letters: Array.from({length:26}, (_,i) => {
+    const L = String.fromCharCode(65+i);
+    return {path:`assets/letters/letter_${L}.png`, label:L};
+  }),
+  numbers: Array.from({length:10}, (_,i) => ({path:`assets/numbers/number_${i}.png`, label:String(i)})),
+  backgrounds: [
+    {path:"assets/backgrounds/bg_underwater.png", label:"Ocean"},
+    {path:"assets/backgrounds/bg_space.png", label:"Space"},
+    {path:"assets/backgrounds/bg_forest.png", label:"Forest"},
+    {path:"assets/backgrounds/bg_candy_land.png", label:"Candy Land"},
+    {path:"assets/backgrounds/bg_cloud_castle.png", label:"Cloud Castle"},
+    {path:"assets/backgrounds/bg_jungle.png", label:"Jungle"},
+  ],
+};
+
+function showGalleryTab(tab: string) {
+  const grid = document.getElementById("gallery-grid")!;
+  grid.innerHTML = "";
+  const assets = GALLERY_ASSETS[tab] || [];
+  for (const item of assets) {
+    const div = document.createElement("div");
+    div.className = "gallery-thumb";
+    const img = document.createElement("img");
+    img.src = item.path;
+    img.alt = item.label;
+    img.loading = "lazy";
+    const lbl = document.createElement("span");
+    lbl.className = "thumb-label";
+    lbl.textContent = item.label;
+    div.appendChild(img);
+    div.appendChild(lbl);
+    div.addEventListener("click", () => {
+      engine.background = item.path;
+      document.querySelectorAll(".bg-option").forEach(o => o.classList.remove("active"));
+      playSound("toolSwitch");
+      render();
+    });
+    grid.appendChild(div);
+  }
+}
+
+document.querySelectorAll(".gallery-tab").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".gallery-tab").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    showGalleryTab(btn.getAttribute("data-tab") || "coloring");
+  });
+});
+
+// Show default tab
+showGalleryTab("coloring");
 
 // ── Init ──────────────────────────────────
 window.addEventListener("resize", sizeCanvas);
