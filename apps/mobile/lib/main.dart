@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'engine/types.dart';
 import 'engine/canvas_engine.dart';
 import 'engine/stroke_painter.dart';
 import 'engine/guided_drawing.dart' as guide;

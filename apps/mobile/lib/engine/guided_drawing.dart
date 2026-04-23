@@ -98,7 +98,7 @@ double checkTracing(List<Point> drawn,List<Point> guide,{double tolerance=35}){
   for(int i=0;i<guide.length;i+=step){
     sampled++;
     final g=guide[i];
-    final close=drawn.any((p)=> sqrt((p.x-g.x)*(p.x-g.x)+(p.y-g.y)*(p.y-g.y))<=tolerance;
+    final close=drawn.any((p)=> sqrt((p.x-g.x)*(p.x-g.x)+(p.y-g.y)*(p.y-g.y))<=tolerance);
     if(close)matched++;
   }
   return matched/(max(1,sampled)*0.6);
