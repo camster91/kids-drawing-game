@@ -11,7 +11,15 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
-  <div id="app">
+  <!-- Splash screen overlay -->
+  <div id="splash-screen" style="position:fixed;inset:0;z-index:999;background:#f1f5f9;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:24px;transition:opacity .8s">
+    <img src="assets/mascot_doodle.png" alt="Doodle mascot" style="width:260px;height:auto;animation:bounce 1.5s infinite">
+    <h1 style="font-family:var(--font);font-size:42px;font-weight:700;background:linear-gradient(90deg,#ef4444,#f97316,#eab308,#22c55e,#3b82f6,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">KIDS DRAWING</h1>
+    <p style="font-family:var(--font);font-size:18px;color:#64748b">Tap to start creating! 🎨</p>
+    <style>@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}</style>
+  </div>
+
+  <div id="app" style="display:none">
     <!-- Top toolbar -->
     <header class="toolbar">
       <div class="toolbar-group">
@@ -107,7 +115,16 @@
         <button class="bg-option" data-bg="#ffecd2">Peach</button>
         <button class="bg-option" data-bg="#e0f2fe">Sky</button>
         <button class="bg-option" data-bg="#fce7f3">Pink</button>
-        <button class="bg-option" data-bg="dots">Dots</button>
+        <button class="bg-option" data-bg="assets/bg_underwater.png">🐠 Ocean</button>
+        <button class="bg-option" data-bg="assets/bg_space.png">🚀 Space</button>
+        <button class="bg-option" data-bg="assets/bg_forest.png">🌲 Forest</button>
+        <button class="bg-option" data-bg="assets/bg_candy_land.png">🍭 Candy</button>
+        <button class="bg-option" data-bg="assets/generated/backgrounds/bg_underwater.png">Deep Sea</button>
+        <button class="bg-option" data-bg="assets/generated/backgrounds/bg_space.png">Galaxy</button>
+        <button class="bg-option" data-bg="assets/generated/backgrounds/bg_forest.png">Woods</button>
+        <button class="bg-option" data-bg="assets/generated/backgrounds/bg_candy_land.png">Sweet</button>
+        <button class="bg-option" data-bg="assets/generated/backgrounds/bg_cloud_castle.png">Sky</button>
+        <button class="bg-option" data-bg="assets/generated/backgrounds/bg_jungle.png">Jungle</button>
       </div>
     </main>
   </div>

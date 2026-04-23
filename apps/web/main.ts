@@ -5,6 +5,19 @@ import { BUILTIN_LESSONS, checkTracing } from "../../engine/src/core/guided_draw
 import type { BrushConfig, ToolType, Stroke, Point } from "../../engine/src/types";
 import type { TracingPath } from "../../engine/src/core/guided_drawing";
 
+
+// ── Splash Screen ──────────────────────
+const splash = document.getElementById("splash-screen")!;
+const appContainer = document.getElementById("app")!;
+if (splash) {
+  splash.addEventListener("click", () => {
+    splash.style.opacity = "0";
+    setTimeout(() => {
+      splash.style.display = "none";
+      appContainer.style.display = "flex";
+    }, 800);
+  });
+}
 // ── Init ─────────────────────────────────
 const canvas = document.getElementById("draw-canvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d", { alpha: false })!;
